@@ -1,4 +1,4 @@
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable } from '@dnd-kit/core';
 import { Play, FileText, GitBranch, Square, Globe } from 'lucide-react';
 
 export default function useDraggableBlocks() {
@@ -62,5 +62,5 @@ export default function useDraggableBlocks() {
 
   return {
     blocks,
-  }
+  };
 }

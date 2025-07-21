@@ -14,20 +14,16 @@ import WorkflowCanvas from './components/WorkflowCanvas';
 import useWorkflowEditor from './hooks/useWorkflowEditor';
 
 const WorkflowEditor = () => {
-  const workflowEditorPayload = useWorkflowEditor(); 
+  const workflowEditorPayload = useWorkflowEditor();
   const {
-    callbacks: { 
-      handleDragStart,
-      handleDragEnd,
-      handleSave
-     },
+    callbacks: { handleDragStart, handleDragEnd, handleSave },
     showSaveDialog,
     setShowSaveDialog,
     activeItem,
   } = workflowEditorPayload;
 
   const { blocks } = useDraggableBlocks();
-  const activeBlock = blocks.find(block => block.id === activeItem);
+  const activeBlock = blocks.find((block) => block.id === activeItem);
 
   return (
     <Flex minHeight="100vh" direction="column" style={{ width: '100%' }}>
@@ -42,17 +38,17 @@ const WorkflowEditor = () => {
       </Card>
 
       {/* Main Content with Panel and Canvas */}
-      <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+      <DndContext
+        collisionDetection={closestCorners}
+        onDragEnd={handleDragEnd}
+        onDragStart={handleDragStart}
+      >
         <Flex flexGrow="1" m="4" mt="2" gap="4">
           {/* Left Panel */}
-            <BlockPanel />
-            <DragOverlay>
-              {activeItem && <DraggableBlockOverlay block={activeBlock} />}
-            </DragOverlay>
+          <BlockPanel />
+          <DragOverlay>{activeItem && <DraggableBlockOverlay block={activeBlock} />}</DragOverlay>
           {/* Workflow Canvas */}
-          <WorkflowCanvas 
-            workflowEditorPayload={workflowEditorPayload}
-          />
+          <WorkflowCanvas workflowEditorPayload={workflowEditorPayload} />
         </Flex>
       </DndContext>
 

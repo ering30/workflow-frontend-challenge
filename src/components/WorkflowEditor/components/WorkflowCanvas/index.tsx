@@ -1,10 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
-import {
-  ReactFlow,
-  MiniMap,
-  Controls,
-  Background,
-} from '@xyflow/react';
+import { ReactFlow, MiniMap, Controls, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Box, Card, Text } from '@radix-ui/themes';
 
@@ -13,7 +8,7 @@ import useModals from '@/hooks/useModals';
 import type { UseWorkflowEditorPayload } from '../../hooks/useWorkflowEditor';
 
 interface WorkflowCanvasProps {
-  workflowEditorPayload: UseWorkflowEditorPayload,
+  workflowEditorPayload: UseWorkflowEditorPayload;
 }
 
 const WorkflowCanvas = (props: WorkflowCanvasProps) => {
@@ -26,11 +21,13 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
       nodeTypes,
       onConnect,
       workflowErrors,
-    }
-  } = props
+    },
+  } = props;
 
   const { setNodeRef } = useDroppable({ id: 'workflow-canvas' });
-  const { callbacks: { launchFormModal } } = useModals();
+  const {
+    callbacks: { launchFormModal },
+  } = useModals();
 
   return (
     <>
@@ -68,7 +65,6 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
               borderRadius: 'var(--radius)',
             }}
           >
-
             <Controls
               style={{ backgroundColor: 'white', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
@@ -96,7 +92,7 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
         </Card>
       </Box>
     </>
-  )
-}
+  );
+};
 
 export default WorkflowCanvas;

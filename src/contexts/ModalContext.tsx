@@ -4,13 +4,13 @@ export const ModalContext = createContext(undefined);
 
 type ModalContextProviderProps = {
   children: ReactNode;
-}
+};
 
 export const ModalContextProvider = (props: ModalContextProviderProps) => {
   const { children } = props;
 
   const [modalData, setModalData] = useState({});
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
 
   const value = {
     modalData,
