@@ -1,28 +1,30 @@
+import { useContext } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { ReactFlow, MiniMap, Controls, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Box, Card, Text } from '@radix-ui/themes';
 
+import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 import useModals from '@/hooks/useModals';
 
 import type { UseWorkflowEditorPayload } from '../../hooks/useWorkflowEditor';
 
 interface WorkflowCanvasProps {
-  workflowEditorPayload: UseWorkflowEditorPayload;
+  nodeTypes: UseWorkflowEditorPayload['nodeTypes'];
+  onConnect: UseWorkflowEditorPayload['onConnect'];
 }
 
 const WorkflowCanvas = (props: WorkflowCanvasProps) => {
+  const { nodeTypes, onConnect } = props;
+
+  const workflowContext = useContext(WorkflowEditorContext);
   const {
-    workflowEditorPayload: {
-      nodes,
-      edges,
-      onNodesChange,
-      onEdgesChange,
-      nodeTypes,
-      onConnect,
-      workflowErrors,
-    },
-  } = props;
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    workflowErrors,
+  } = workflowContext
 
   const { setNodeRef } = useDroppable({ id: 'workflow-canvas' });
   const {

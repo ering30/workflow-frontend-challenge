@@ -1,8 +1,10 @@
-import { useCallback, useState } from 'react';
-import { useNodesState, useEdgesState, addEdge, Connection, Edge, Node } from '@xyflow/react';
+import { useCallback, useContext, useState } from 'react';
+import { addEdge, Connection, Edge, Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
+
+import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 
 import StartNode from '@/components/nodes/StartNode';
 import FormNode from '@/components/nodes/FormNode';
@@ -17,9 +19,6 @@ const nodeTypes = {
   api: ApiNode,
   end: EndNode,
 };
-
-const initialNodes: Node[] = [];
-const initialEdges: Edge[] = [];
 
 const handleDragStart = (event: DragStartEvent, setActiveItem: (id: UniqueIdentifier) => void) => {
   const { active } = event;
@@ -123,15 +122,23 @@ const handleSave = (nodes: Node[], edges: Edge[], setShowSaveDialog: (value: boo
 };
 
 export default function useWorkflowEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [workflowErrors, setWorkflowErrors] = useState<string[]>([]);
-  const [activeItem, setActiveItem] = useState(null);
-
-  const hasNodes = nodes.length > 0;
-  const hasStartNode = hasNodes && nodes.some((node) => node.id.startsWith('start'));
-  const hasEndNode = hasNodes && nodes.some((node) => node.id.startsWith('end'));
+  const workflowContext = useContext(WorkflowEditorContext);
+  const { nodes,
+    setNodes,
+    onNodesChange,
+    edges,
+    setEdges,
+    onEdgesChange,
+    showSaveDialog,
+    setShowSaveDialog,
+    workflowErrors,
+    setWorkflowErrors,
+    activeItem,
+    setActiveItem,
+    hasNodes,
+    hasStartNode,
+    hasEndNode,
+  } = workflowContext;
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -155,21 +162,6 @@ export default function useWorkflowEditor() {
           workflowErrors,
         }),
     },
-    nodes,
-    setNodes,
-    onNodesChange,
-    edges,
-    setEdges,
-    onEdgesChange,
-    showSaveDialog,
-    setShowSaveDialog,
-    workflowErrors,
-    setWorkflowErrors,
-    activeItem,
-    setActiveItem,
-    hasNodes,
-    hasStartNode,
-    hasEndNode,
     nodeTypes,
     onConnect,
   };
