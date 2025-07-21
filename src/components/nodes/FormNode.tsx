@@ -50,7 +50,7 @@ const FormNode = ({ data }: { data: FormNodeData }) => (
     </Flex>
 
     <Text size="1" style={{ opacity: 0.9, textAlign: 'center' }}>
-      {data.fields && data.fields.length > 0 
+      {data.fields && data.fields.length > 0
         ? `${data.fields.length} field${data.fields.length > 1 ? 's' : ''} configured`
         : 'Click to configure form fields'}
     </Text>

@@ -2,8 +2,8 @@ import { Card, Heading, Text, Box, Flex } from '@radix-ui/themes';
 import useDraggableBlocks from '../../hooks/useDraggableBlocks';
 
 const BlockPanel = () => {
-  const { blocks } = useDraggableBlocks()
-  
+  const { blocks } = useDraggableBlocks();
+
   return (
     <Card style={{ width: '256px', height: '100%' }}>
       <Box p="4" pb="3">
@@ -12,7 +12,9 @@ const BlockPanel = () => {
       <Flex p="4" pt="0" direction="column" gap="3">
         {blocks.map((block) => {
           const IconComponent = block.icon;
-          const { callbacks: { draggable } } = block;
+          const {
+            callbacks: { draggable },
+          } = block;
           const { attributes, listeners, setNodeRef } = draggable(block.id);
 
           return (

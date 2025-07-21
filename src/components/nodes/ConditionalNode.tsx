@@ -12,7 +12,6 @@ interface ConditionalNodeData {
 }
 
 const ConditionalNode = ({ data }: { data: ConditionalNodeData }) => {
-
   return (
     <Box
       px="4"
@@ -46,7 +45,7 @@ const ConditionalNode = ({ data }: { data: ConditionalNodeData }) => {
       </Flex>
 
       <Text size="1" style={{ opacity: 0.9, textAlign: 'center' }}>
-        {data.fieldToEvaluate 
+        {data.fieldToEvaluate
           ? `${data.fieldToEvaluate} ${data.operator || ''} ${data.value || ''}`
           : 'Click to configure conditions'}
       </Text>

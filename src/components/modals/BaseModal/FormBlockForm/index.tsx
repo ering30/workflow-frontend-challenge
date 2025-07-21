@@ -7,13 +7,13 @@ import { ModalDataType } from '@/hooks/useModals';
 import CustomFieldInput from './CustomFieldInput';
 
 interface FormBlockFormProps {
-  modalData: ModalDataType
+  modalData: ModalDataType;
   setModalData: React.Dispatch<React.SetStateAction<ModalDataType>>;
 }
 
 const FormBlockForm = (props: FormBlockFormProps) => {
   const modalContext = useContext(ModalContext);
-    const { modalData, setModalData } = modalContext || {};
+  const { modalData, setModalData } = modalContext || {};
 
   return (
     <>
@@ -21,23 +21,23 @@ const FormBlockForm = (props: FormBlockFormProps) => {
         <Text size="1" className="text-black ">
           Form Fields
         </Text>
-        <Button 
-          color='gray'
-          variant="ghost" 
-          className='!p-2 !rounded !text-sm'
+        <Button
+          color="gray"
+          variant="ghost"
+          className="!p-2 !rounded !text-sm"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            const newField = { 
+            const newField = {
               id: `field-${modalData.fields.length + 1}`,
-              name: '', 
-              type: '' as const, 
-              required: false 
+              name: '',
+              type: '' as const,
+              required: false,
             };
-            setModalData(prevData => ({
-            ...prevData,
-            fields: [...(prevData.fields || []), newField]
-          }));
+            setModalData((prevData) => ({
+              ...prevData,
+              fields: [...(prevData.fields || []), newField],
+            }));
           }}
         >
           Add Field +
@@ -46,7 +46,7 @@ const FormBlockForm = (props: FormBlockFormProps) => {
 
       <Flex direction="column" className="mb-4 flex-col gap-4">
         {modalData.fields.map((field, index) => (
-          <CustomFieldInput 
+          <CustomFieldInput
             id={field.id}
             key={`field-${index + 1}`}
             modalData={modalData}
@@ -54,11 +54,8 @@ const FormBlockForm = (props: FormBlockFormProps) => {
           />
         ))}
       </Flex>
-
-      
     </>
-    
-  )
-}
+  );
+};
 
-export default FormBlockForm 
+export default FormBlockForm;

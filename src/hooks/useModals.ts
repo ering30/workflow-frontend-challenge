@@ -1,6 +1,6 @@
-import { useContext } from "react";
-import { ModalContext } from "@/contexts/ModalContext";
-import { toTitleCase } from "@/lib/utilityFunctions";
+import { useContext } from 'react';
+import { ModalContext } from '@/contexts/ModalContext';
+import { toTitleCase } from '@/lib/utilityFunctions';
 
 export type ModalDataType = {
   id: string | null;
@@ -8,12 +8,12 @@ export type ModalDataType = {
   label: string;
   customName: string;
   fields: FormField[];
-}
+};
 
 const launchFormModal = (
-  data: any, 
-  setShowModal: (state: boolean) => void, 
-  setModalData: (data: ModalDataType) => void,
+  data: any,
+  setShowModal: (state: boolean) => void,
+  setModalData: (data: ModalDataType) => void
 ) => {
   setModalData({
     id: data?.id || null,
@@ -24,7 +24,7 @@ const launchFormModal = (
   });
 
   setShowModal(true);
-}
+};
 
 interface FormField {
   id: string;
@@ -33,8 +33,8 @@ interface FormField {
   required: boolean;
 }
 
-  export default function useModals() {
-    const { setModalData, showModal, setShowModal } = useContext(ModalContext) || {};
+export default function useModals() {
+  const { setModalData, showModal, setShowModal } = useContext(ModalContext) || {};
 
   return {
     callbacks: {
@@ -45,5 +45,5 @@ interface FormField {
     },
     showModal,
     setShowModal,
-  }
+  };
 }

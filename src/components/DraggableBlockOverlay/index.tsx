@@ -3,20 +3,22 @@ import { LucideIcon } from 'lucide-react';
 
 interface DraggableBlockOverlayProps {
   block: {
-    id: string,
-    name: string,
-    icon: LucideIcon,
-    description?: string,
-    color: string,
-    darkColor?: string,
+    id: string;
+    name: string;
+    icon: LucideIcon;
+    description?: string;
+    color: string;
+    darkColor?: string;
     callbacks?: {
       draggable: (id: string) => any;
-    }
-  }
+    };
+  };
 }
 
 const DraggableBlockOverlay = (props: DraggableBlockOverlayProps) => {
-  const { block: { name, icon: IconComponent, color } } = props;
+  const {
+    block: { name, icon: IconComponent, color },
+  } = props;
 
   return (
     <Flex
@@ -44,6 +46,6 @@ const DraggableBlockOverlay = (props: DraggableBlockOverlayProps) => {
       </Text>
     </Flex>
   );
-}
+};
 
 export default DraggableBlockOverlay;

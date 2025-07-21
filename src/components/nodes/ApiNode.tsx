@@ -12,7 +12,6 @@ interface ApiNodeData {
 }
 
 const ApiNode = ({ data }: { data: ApiNodeData }) => {
-
   return (
     <Box
       px="4"
