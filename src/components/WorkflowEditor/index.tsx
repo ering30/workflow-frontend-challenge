@@ -1,9 +1,13 @@
+import { useContext } from 'react';
+
 import '@xyflow/react/dist/style.css';
 
 import { closestCorners, DndContext, DragOverlay } from '@dnd-kit/core';
 
 import { AlertDialog, Button, Card, Flex, Heading } from '@radix-ui/themes';
 import { Save } from 'lucide-react';
+
+import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 
 import BlockPanel from '../BlockPanel';
 import DraggableBlockOverlay from '../DraggableBlockOverlay';
@@ -16,11 +20,15 @@ import useWorkflowEditor from './hooks/useWorkflowEditor';
 const WorkflowEditor = () => {
   const workflowEditorPayload = useWorkflowEditor();
   const {
-    callbacks: { handleDragStart, handleDragEnd, handleSave },
+    callbacks: { handleDragStart, handleDragEnd, handleSave }, onConnect, nodeTypes,
+  } = workflowEditorPayload;
+
+  const workflowContext = useContext(WorkflowEditorContext);
+  const {
     showSaveDialog,
     setShowSaveDialog,
     activeItem,
-  } = workflowEditorPayload;
+  } = workflowContext
 
   const { blocks } = useDraggableBlocks();
   const activeBlock = blocks.find((block) => block.id === activeItem);
@@ -48,7 +56,7 @@ const WorkflowEditor = () => {
           <BlockPanel />
           <DragOverlay>{activeItem && <DraggableBlockOverlay block={activeBlock} />}</DragOverlay>
           {/* Workflow Canvas */}
-          <WorkflowCanvas workflowEditorPayload={workflowEditorPayload} />
+          <WorkflowCanvas onConnect={onConnect} nodeTypes={nodeTypes} />
         </Flex>
       </DndContext>
 
