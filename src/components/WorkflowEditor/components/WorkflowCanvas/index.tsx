@@ -6,8 +6,9 @@ import {
   Background,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-
 import { Box, Card, Text } from '@radix-ui/themes';
+
+import useModals from '@/hooks/useModals';
 
 import type { UseWorkflowEditorPayload } from '../../hooks/useWorkflowEditor';
 
@@ -29,60 +30,72 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
   } = props
 
   const { setNodeRef } = useDroppable({ id: 'workflow-canvas' });
-  
+  const { callbacks: { launchFormModal } } = useModals();
+
   return (
-    <Box flexGrow="1" style={{ minHeight: '600px' }}>
-      <Card id="workflow-canvas" ref={setNodeRef} style={{ overflow: 'hidden', height: '100%' }}>
-        {workflowErrors.length > 0 && (
-          <Box p="2" style={{ backgroundColor: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
-            <Text size="2" color="red">
-              Workflow Errors: {workflowErrors.join(', ')}
-            </Text>
-          </Box>
-        )}
+    <>
+      <Box flexGrow="1" style={{ minHeight: '600px' }}>
+        <Card id="workflow-canvas" ref={setNodeRef} style={{ overflow: 'hidden', height: '100%' }}>
+          {workflowErrors.length > 0 && (
+            <Box p="2" style={{ backgroundColor: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
+              <Text size="2" color="red">
+                Workflow Errors: {workflowErrors.join(', ')}
+              </Text>
+            </Box>
+          )}
 
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          fitView
-          style={{
-            width: '100%',
-            height: '100%',
-            backgroundColor: '#f8fafc',
-            borderRadius: 'var(--radius)',
-          }}
-        >
-
-          <Controls
-            style={{ backgroundColor: 'white', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-          />
-          <MiniMap
-            style={{ backgroundColor: 'white', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-            nodeColor={(node) => {
-              switch (node.type) {
-                case 'start':
-                  return '#10b981';
-                case 'form':
-                  return '#3b82f6';
-                case 'conditional':
-                  return '#f59e0b';
-                case 'api':
-                  return '#a855f7';
-                case 'end':
-                  return '#ef4444';
-                default:
-                  return '#6b7280';
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeClick={(_, element) => {
+              if (element.type === 'form') {
+                launchFormModal({ data: element });
+              }
+              if (element.type === 'api') {
+                console.log('API Node Clicked:', element);
+                // Handle API node click logic here
               }
             }}
-          />
-          <Background color="#e2e8f0" gap={20} />
-        </ReactFlow>
-      </Card>
-    </Box>
+            nodeTypes={nodeTypes}
+            fitView
+            style={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: '#f8fafc',
+              borderRadius: 'var(--radius)',
+            }}
+          >
+
+            <Controls
+              style={{ backgroundColor: 'white', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+            />
+            <MiniMap
+              style={{ backgroundColor: 'white', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+              nodeColor={(node) => {
+                switch (node.type) {
+                  case 'start':
+                    return '#10b981';
+                  case 'form':
+                    return '#3b82f6';
+                  case 'conditional':
+                    return '#f59e0b';
+                  case 'api':
+                    return '#a855f7';
+                  case 'end':
+                    return '#ef4444';
+                  default:
+                    return '#6b7280';
+                }
+              }}
+            />
+            <Background color="#e2e8f0" gap={20} />
+          </ReactFlow>
+        </Card>
+      </Box>
+    </>
   )
 }
 

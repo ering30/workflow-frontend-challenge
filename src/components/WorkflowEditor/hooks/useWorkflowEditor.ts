@@ -86,12 +86,14 @@ const handleDragEnd = (params: HandleDragEndParams) => {
 
   const newNode = {
     id: newNodeId,
-    type: `${active.id}`,
+    type: active.id,
     position: { 
       x: offset.x,
       y: offset.y
     },
     data: { 
+      label: active.data?.label || 'New Node',
+      type: active.id,
     },
   };
 
