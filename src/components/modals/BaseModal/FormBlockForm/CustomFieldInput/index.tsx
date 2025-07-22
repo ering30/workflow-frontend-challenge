@@ -1,19 +1,17 @@
-import { ChangeEvent } from 'react';
-import { Button, Flex } from '@radix-ui/themes';
+import { Button, Flex, Text } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
 import { Trash2 } from 'lucide-react';
 
-import { ModalDataType } from '@/hooks/useModals';
+import type { FormField, ModalDataType } from '@/hooks/useModals';
+import useForms from '@/components/modals/hooks/useForms';
 
 interface CustomFieldInputProps {
   id: string;
   modalData: {
-    fields: {
-      id: string;
-      name: string;
-      type: 'text' | 'email' | 'number' | '';
-      required: boolean;
-    }[];
+    fields: FormField[];
+    errors: { field: string; message: string }[];
+    customName: string;
+    label: string;
   };
   setModalData: React.Dispatch<React.SetStateAction<ModalDataType>>;
 }
@@ -21,32 +19,12 @@ interface CustomFieldInputProps {
 const CustomFieldInput = (props: CustomFieldInputProps) => {
   const { modalData, setModalData } = props;
   const currentField = modalData.fields.find((field) => field.id === props.id);
-  const { id, name, type, required } = currentField || {};
+  const { id, name, required } = currentField || {};
+  const errors = modalData.errors || [];
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-    fieldType: string
-  ) => {
-    if (fieldType === 'required') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setModalData((prevData) => ({
-        ...prevData,
-        fields:
-          prevData.fields?.map((fieldItem) =>
-            fieldItem.id === props.id ? { ...fieldItem, required: checked } : fieldItem
-          ) || [],
-      }));
-    } else {
-      const value = (e.target as HTMLInputElement | HTMLSelectElement).value;
-      setModalData((prevData) => ({
-        ...prevData,
-        fields:
-          prevData.fields?.map((fieldItem) =>
-            fieldItem.id === props.id ? { ...fieldItem, [fieldType]: value } : fieldItem
-          ) || [],
-      }));
-    }
-  };
+  const {
+    callbacks: { handleChange },
+  } = useForms();
 
   return (
     <Flex className="flex-col bg-gray-100 border-gray-500 rounded-md p-4 gap-2 relative">
@@ -66,22 +44,31 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
           <Trash2 size={16} />
         </Button>
       </Flex>
-      <Form.Field name="fieldName" className="flex flex-col gap-2">
-        <Form.Label htmlFor="fieldName" className="text-sm text-gray-400">
+      <Form.Field name="name" className="flex flex-col gap-2">
+        <Form.Label htmlFor="name" className="text-sm text-gray-400">
           Field Name
         </Form.Label>
+        <Form.Message>
+          <Text className="text-red-500 text-sm" data-testid="field-name-error">
+            {
+              errors?.find((error) => {
+                const fieldArray = error.field.split('_');
+                return fieldArray[1] === 'name' && fieldArray[0] === props.id;
+              })?.message
+            }
+          </Text>
+        </Form.Message>
         <Form.Control asChild>
           <input
             className="border border-gray-300 p-2 rounded-xl text-sm"
-            name="fieldName"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'name')}
+            data-testid="field-name-input"
+            name="name"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'name', props.id)}
             required
             type="text"
             value={name || ''}
           />
         </Form.Control>
-        {/* <Form.Message /> */}
-        {/* <Form.ValidityState /> */}
       </Form.Field>
 
       <Flex justify="between" align="center" className="gap-2">
@@ -89,12 +76,23 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
           <Form.Label htmlFor="fieldType" className="text-sm text-gray-400">
             Field Type
           </Form.Label>
+          <Text className="text-red-500 text-sm" data-testid="field-type-error">
+            {
+              errors?.find((error) => {
+                const fieldArray = error.field.split('_');
+                return fieldArray[1] === 'type' && fieldArray[0] === props.id;
+              })?.message
+            }
+          </Text>
           <Form.Control asChild>
             <select
-              name="type"
-              id="fieldType"
-              onChange={(e) => handleChange(e, 'type')}
               className="border border-gray-300 p-2 rounded-xl text-sm"
+              data-testid="field-type-select"
+              id="type"
+              name="type"
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                handleChange(e, 'type', props.id)
+              }
               required
             >
               <option value="" disabled hidden>
@@ -105,8 +103,6 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
               <option value="number">Number</option>
             </select>
           </Form.Control>
-          {/* <Form.Message /> */}
-          {/* <Form.ValidityState /> */}
         </Form.Field>
 
         <Form.Field name="fieldRequired" className="flex flex-1 gap-2 justify-center max-w-[50%]">
@@ -115,14 +111,12 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
           </Form.Label>
           <Form.Control asChild>
             <input
-              type="checkbox"
-              name="fieldRequired"
               checked={required || false}
-              onChange={(e) => handleChange(e, 'required')}
+              name="fieldRequired"
+              onChange={(e) => handleChange(e, 'required', props.id)}
+              type="checkbox"
             />
           </Form.Control>
-          {/* <Form.Message /> */}
-          {/* <Form.ValidityState /> */}
         </Form.Field>
       </Flex>
     </Flex>

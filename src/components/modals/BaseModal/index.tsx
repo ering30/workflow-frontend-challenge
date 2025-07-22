@@ -7,24 +7,30 @@ import { ModalContext } from '@/contexts/ModalContext';
 import useModals from '@/hooks/useModals';
 import { toTitleCase } from '@/lib/utilityFunctions';
 
+import useForms from '../hooks/useForms';
 import FormBlockForm from './FormBlockForm';
 
 const BaseModal = () => {
   const modalContext = useContext(ModalContext);
   const { modalData, setModalData } = modalContext || {};
-  const { type, label } = modalData || {};
+  const { errors, type, customName } = modalData || {};
   const {
     showModal,
     callbacks: { closeModal },
   } = useModals();
 
+  const {
+    callbacks: { handleSaveChanges },
+  } = useForms();
+
   const handleBlockNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     setModalData((prevData) => ({
       ...prevData,
-      label: newName,
+      customName: newName,
     }));
   };
+
   return (
     <Dialog.Root
       open={showModal}
@@ -50,7 +56,11 @@ const BaseModal = () => {
 
           <Form.Root className="flex flex-col gap-4">
             <Form.Field name="blockName" className="flex flex-col gap-2">
-              <Form.Label htmlFor="blockName" className="text-sm text-gray-400">
+              <Form.Label
+                data-testid="blockName-input"
+                htmlFor="blockName"
+                className="text-sm text-gray-400"
+              >
                 Block Name
               </Form.Label>
               <Form.Control asChild>
@@ -59,7 +69,7 @@ const BaseModal = () => {
                   name="blockName"
                   required
                   type="text"
-                  value={label}
+                  value={customName}
                   onChange={(e) => handleBlockNameChange(e)}
                 />
               </Form.Control>
@@ -70,6 +80,11 @@ const BaseModal = () => {
             {/* <Form.Message /> */}
             {/* <Form.ValidityState /> */}
 
+            {errors?.length > 0 && errors.find((error) => error.field === 'none') && (
+              <Text className="text-red-500 text-sm">
+                {errors.find((error) => error.field === 'none').message}
+              </Text>
+            )}
             {/* form modal content */}
             {type === 'form' && <FormBlockForm modalData={modalData} setModalData={setModalData} />}
 
@@ -94,7 +109,9 @@ const BaseModal = () => {
               size="1"
               radius="large"
               className="!p-2 !rounded !text-sm"
-              onClick={() => console.log('set nodes state')}
+              onClick={() => {
+                handleSaveChanges(modalData, closeModal);
+              }}
             >
               Save Changes
             </Button>
