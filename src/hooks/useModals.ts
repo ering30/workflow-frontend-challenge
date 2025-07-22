@@ -7,6 +7,7 @@ export type ModalDataType = {
   type: string | null;
   label: string;
   customName: string;
+  errors: { field: string; message: string }[];
   fields: FormField[];
 };
 
@@ -18,20 +19,21 @@ const launchFormModal = (
   setModalData({
     id: data?.id || null,
     type: data?.type || null,
-    label: data?.label || `${toTitleCase(data?.type)} Node`,
-    customName: data?.customName || '',
-    fields: data?.fields || [],
+    label: data?.data.label || `${toTitleCase(data?.type)} Node`,
+    customName: data?.data.customName || '',
+    errors: [],
+    fields: data?.data.fields || [],
   });
 
   setShowModal(true);
 };
 
-interface FormField {
+export type FormField = {
   id: string;
   name: string;
-  type: 'text' | 'email' | 'number';
+  type: 'text' | 'email' | 'number' | '';
   required: boolean;
-}
+};
 
 export default function useModals() {
   const { setModalData, showModal, setShowModal } = useContext(ModalContext) || {};

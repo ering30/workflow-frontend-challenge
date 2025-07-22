@@ -18,13 +18,7 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
   const { nodeTypes, onConnect } = props;
 
   const workflowContext = useContext(WorkflowEditorContext);
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    workflowErrors,
-  } = workflowContext
+  const { nodes, edges, onNodesChange, onEdgesChange, workflowErrors } = workflowContext;
 
   const { setNodeRef } = useDroppable({ id: 'workflow-canvas' });
   const {

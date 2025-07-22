@@ -86,7 +86,8 @@ const handleDragEnd = (params: HandleDragEndParams) => {
       y: offset.y,
     },
     data: {
-      label: active.data?.label || 'New Node',
+      fields: [],
+      label: 'New Node',
       type: active.id,
     },
   };
@@ -123,7 +124,8 @@ const handleSave = (nodes: Node[], edges: Edge[], setShowSaveDialog: (value: boo
 
 export default function useWorkflowEditor() {
   const workflowContext = useContext(WorkflowEditorContext);
-  const { nodes,
+  const {
+    nodes,
     setNodes,
     onNodesChange,
     edges,

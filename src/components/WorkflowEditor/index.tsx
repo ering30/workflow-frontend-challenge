@@ -20,15 +20,13 @@ import useWorkflowEditor from './hooks/useWorkflowEditor';
 const WorkflowEditor = () => {
   const workflowEditorPayload = useWorkflowEditor();
   const {
-    callbacks: { handleDragStart, handleDragEnd, handleSave }, onConnect, nodeTypes,
+    callbacks: { handleDragStart, handleDragEnd, handleSave },
+    onConnect,
+    nodeTypes,
   } = workflowEditorPayload;
 
   const workflowContext = useContext(WorkflowEditorContext);
-  const {
-    showSaveDialog,
-    setShowSaveDialog,
-    activeItem,
-  } = workflowContext
+  const { showSaveDialog, setShowSaveDialog, activeItem } = workflowContext;
 
   const { blocks } = useDraggableBlocks();
   const activeBlock = blocks.find((block) => block.id === activeItem);

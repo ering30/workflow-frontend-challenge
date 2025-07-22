@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { Flex, Button, Text } from '@radix-ui/themes';
 
 import { ModalContext } from '@/contexts/ModalContext';
-import { ModalDataType } from '@/hooks/useModals';
+import { FormField, ModalDataType } from '@/hooks/useModals';
 
 import CustomFieldInput from './CustomFieldInput';
 
@@ -12,8 +12,7 @@ interface FormBlockFormProps {
 }
 
 const FormBlockForm = (props: FormBlockFormProps) => {
-  const modalContext = useContext(ModalContext);
-  const { modalData, setModalData } = modalContext || {};
+  const { modalData, setModalData } = props;
 
   return (
     <>
@@ -31,9 +30,10 @@ const FormBlockForm = (props: FormBlockFormProps) => {
             const newField = {
               id: `field-${modalData.fields.length + 1}`,
               name: '',
-              type: '' as const,
+              type: '' as FormField['type'],
               required: false,
             };
+
             setModalData((prevData) => ({
               ...prevData,
               fields: [...(prevData.fields || []), newField],
