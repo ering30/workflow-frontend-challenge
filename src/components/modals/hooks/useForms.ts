@@ -1,18 +1,31 @@
 import { ChangeEvent, useContext, useEffect } from 'react';
 import { Node } from '@xyflow/react';
+import { isURL } from 'validator';
 
-import { sanitisedStringInput } from '@/lib/validation';
+import { sanitisedStringInput, sanitisedUrl } from '@/lib/validation';
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 import { ModalContext } from '@/contexts/ModalContext';
 
-import type { ModalDataType } from '@/hooks/useModals';
+import type { FormModalDataType, ApiModalDataType } from '@/hooks/useModals';
 
-const formIsValid = (modalData: ModalDataType) => {
-  const { fields, errors, type } = modalData;
-  const hasNames = fields?.findIndex((field) => field.name.trim() === '') === -1;
-  const hasFields = type === 'form' ? fields?.length > 0 : true;
-  const noErrors = errors?.length === 0 || errors === undefined;
-  return hasNames && noErrors && hasFields;
+const formIsValid = (modalData: FormModalDataType | ApiModalDataType) => {
+  const { errors, type } = modalData;
+  if (type === 'form') {
+    const data = modalData as FormModalDataType;
+
+    const hasNames = data?.fields?.findIndex((field) => field.name.trim() === '') === -1;
+    const hasFields = type === 'form' ? data?.fields?.length > 0 : true;
+    const noErrors = errors?.length === 0 || errors === undefined;
+    return hasNames && noErrors && hasFields;
+  } else if (type === 'api') {
+    const data = modalData as ApiModalDataType;
+
+    const hasUrl = data?.url?.trim() !== '';
+    const noErrors = errors?.length === 0 || errors === undefined;
+    const hasRequestBody = Object.keys(data?.requestBody || {}).length > 0;
+    return hasUrl && noErrors && hasRequestBody;
+  }
+  return false;
 };
 
 const handleNestedFieldChange = (
@@ -42,8 +55,48 @@ const handleNestedFieldChange = (
   }
 };
 
+const handleUrlInputChange = (
+  e: ChangeEvent<HTMLInputElement>,
+  fieldType: string,
+  modalData: ApiModalDataType,
+  setModalData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  const { value } = e.target;
+  setModalData((prevData) => ({
+    ...prevData,
+    [fieldType]: value,
+  }));
+
+  if (fieldType === 'url' && !isURL(value)) {
+    const errorMessage = 'Please enter a valid URL.';
+    if (
+      !modalData.errors?.find((error) => error.field === `url` && error.message === errorMessage)
+    ) {
+      setModalData((prevData) => ({
+        ...prevData,
+        errors: [...prevData.errors, { field: `url`, message: errorMessage }],
+      }));
+    }
+  }
+};
+
+const handleSelectRequestBodyField = (
+  e: ChangeEvent<HTMLInputElement>,
+  fieldName: string,
+  setModalData: React.Dispatch<React.SetStateAction<any>>
+) => {
+  setModalData((prevState) => ({
+    ...prevState,
+    requestBody: {
+      ...prevState.requestBody,
+      // leave the value empty so that the eventual form value can be added
+      [fieldName]: '',
+    },
+  }));
+};
+
 interface HandleSaveChangesParams {
-  modalData: any;
+  modalData: FormModalDataType | ApiModalDataType;
   nodes: Node[];
   setNodes: React.Dispatch<React.SetStateAction<any>>;
   setModalData: React.Dispatch<React.SetStateAction<any>>;
@@ -52,40 +105,85 @@ interface HandleSaveChangesParams {
 
 const handleSaveChanges = (params: HandleSaveChangesParams) => {
   const { modalData, nodes, setNodes, setModalData, closeModal } = params;
-  const { fields } = modalData;
 
   if (formIsValid(modalData)) {
-    const updatedNodes = nodes.map((node) => {
-      if (node.id === modalData.id) {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            customName: sanitisedStringInput(modalData.customName),
-            label: modalData.label,
-            fields: fields,
-          },
-        };
-      }
-      return node;
-    });
-    setNodes(updatedNodes);
-    closeModal();
-  } else if (!formIsValid(modalData)) {
-    // set errors
-    const newErrors = [];
-    if (fields.length === 0) {
-      newErrors.push({ field: 'none', message: 'At least one field is required.' });
+    if (modalData.type === 'form') {
+      const data = modalData as FormModalDataType;
+
+      const updatedNodes = nodes.map((node) => {
+        if (node.id === data.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              customName: sanitisedStringInput(data.customName),
+              label: data.label,
+              fields: data.fields,
+            },
+          };
+        }
+        return node;
+      });
+
+      setNodes(updatedNodes);
+      closeModal();
+    } else if (modalData.type === 'api') {
+      const data = modalData as ApiModalDataType;
+
+      const updatedNodes = nodes.map((node) => {
+        if (node.id === data.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              customName: sanitisedStringInput(data.customName),
+              label: data.label,
+              httpMethod: data.httpMethod,
+              url: sanitisedUrl(data.url),
+              requestBody: data.requestBody,
+            },
+          };
+        }
+        return node;
+      });
+
+      setNodes(updatedNodes);
+      closeModal();
     }
-    fields.forEach((field) => {
-      if (!field.name || field.name.trim() === '') {
-        newErrors.push({ field: `${field.id}_name`, message: 'This field is required.' });
+  } else if (!formIsValid(modalData)) {
+    if (modalData.type === 'form') {
+      const data = modalData as FormModalDataType;
+
+      // set errors
+      const newErrors = [];
+      if (data.fields.length === 0) {
+        newErrors.push({ field: 'none', message: 'At least one field is required.' });
       }
-      if (field.type === '') {
-        newErrors.push({ field: `${field.id}_type`, message: 'Field type is required.' });
+      data.fields.forEach((field) => {
+        if (!field.name || field.name.trim() === '') {
+          newErrors.push({ field: `${field.id}_name`, message: 'This field is required.' });
+        }
+        if (field.type === '') {
+          newErrors.push({ field: `${field.id}_type`, message: 'Field type is required.' });
+        }
+      });
+      setModalData((prevState) => ({ ...prevState, errors: newErrors }));
+    } else if (modalData.type === 'api') {
+      const data = modalData as ApiModalDataType;
+
+      // set errors
+      const newErrors = [];
+      if (!data.url || data.url.trim() === '') {
+        newErrors.push({ field: 'url', message: 'Request URL is required.' });
       }
-    });
-    setModalData((prevState) => ({ ...prevState, errors: newErrors }));
+      if (Object.keys(data.requestBody).length === 0) {
+        newErrors.push({
+          field: 'requestBody',
+          message: 'At least one request body field is required.',
+        });
+      }
+      setModalData((prevState) => ({ ...prevState, errors: newErrors }));
+    }
   }
 };
 
@@ -96,38 +194,74 @@ export default function useForms() {
   const { nodes, setNodes } = workflowContext;
 
   useEffect(() => {
-    if (modalData.errors?.length > 0) {
-      // check if the fields are now valid after changes
-      const newErrors = modalData.errors.filter((error) => {
-        const fieldArray = error.field.split('_');
-        const fieldId = fieldArray[0];
-        const fieldType = fieldArray[1];
-        const currentField = modalData?.fields?.find((field) => field.id === fieldId);
+    if (modalData.type === 'form') {
+      if (modalData.errors?.length > 0) {
+        // check if the fields are now valid after changes
+        const newErrors = modalData.errors.filter((error) => {
+          const fieldArray = error.field.split('_');
+          const fieldId = fieldArray[0];
+          const fieldType = fieldArray[1];
+          const currentField = modalData?.fields?.find((field) => field.id === fieldId);
 
-        if (currentField) {
-          if (fieldType === 'name' && currentField.name?.trim() !== '') {
+          if (currentField) {
+            if (fieldType === 'name' && currentField.name?.trim() !== '') {
+              return false;
+            }
+            if (fieldType === 'type' && currentField.type !== '') {
+              return false;
+            }
+          }
+          return true;
+        });
+
+        const filteredErrors = newErrors.filter((error) => {
+          if (error.field === 'none' && modalData?.fields?.length > 0) {
             return false;
           }
-          if (fieldType === 'type' && currentField.type !== '') {
+          return true;
+        });
+
+        // Only update if errors actually changed
+        if (filteredErrors.length !== modalData.errors.length) {
+          setModalData?.((prevState) => ({
+            ...prevState,
+            errors: filteredErrors,
+          }));
+        }
+      }
+    } else if (modalData.type === 'api') {
+      if (modalData.errors?.length > 0) {
+        // check if the fields are now valid after changes
+        const newErrors = modalData.errors.filter((error) => {
+          if (error.field === 'url' && modalData.url?.trim() !== '') {
             return false;
           }
-        }
-        return true;
-      });
+          if (
+            error.field === 'requestBody' &&
+            Object.keys(modalData.requestBody || {}).length > 0
+          ) {
+            return false;
+          }
+          return true;
+        });
 
-      const filteredErrors = newErrors.filter((error) => {
-        if (error.field === 'none' && modalData?.fields?.length > 0) {
-          return false;
-        }
-        return true;
-      });
+        const filteredErrors = newErrors.filter((error) => {
+          if (error.field === 'none' && modalData?.fields?.length > 0) {
+            return false;
+          }
+          return true;
+        });
 
-      setModalData?.((prevState) => ({
-        ...prevState,
-        errors: filteredErrors,
-      }));
+        // Only update if errors actually changed
+        if (filteredErrors.length !== modalData.errors.length) {
+          setModalData?.((prevState) => ({
+            ...prevState,
+            errors: filteredErrors,
+          }));
+        }
+      }
     }
-  }, [JSON.stringify(modalData?.fields), modalData?.errors?.length]);
+  }, [JSON.stringify(modalData?.fields), JSON.stringify(modalData?.requestBody)]);
 
   return {
     callbacks: {
@@ -138,6 +272,10 @@ export default function useForms() {
       ) => handleNestedFieldChange(e, fieldType, fieldId, setModalData),
       handleSaveChanges: (modalData: any, closeModal: () => void) =>
         handleSaveChanges({ modalData, nodes, setNodes, setModalData, closeModal }),
+      handleUrlInputChange: (e: ChangeEvent<HTMLInputElement>, fieldType: string) =>
+        handleUrlInputChange(e, fieldType, modalData, setModalData),
+      handleSelectRequestBodyField: (e: ChangeEvent<HTMLInputElement>, fieldName: string) =>
+        handleSelectRequestBodyField(e, fieldName, setModalData),
     },
   };
 }

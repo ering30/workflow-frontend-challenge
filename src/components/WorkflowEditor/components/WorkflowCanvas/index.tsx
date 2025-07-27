@@ -22,7 +22,7 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
 
   const { setNodeRef } = useDroppable({ id: 'workflow-canvas' });
   const {
-    callbacks: { launchModal },
+    callbacks: { launchFormModal, launchApiModal },
   } = useModals();
 
   return (
@@ -45,8 +45,10 @@ const WorkflowCanvas = (props: WorkflowCanvasProps) => {
             onConnect={onConnect}
             onNodeClick={(_, element) => {
               // triggers only on clicking an element, not on drag
-              if (element.type === 'form' || element.type === 'api') {
-                launchModal({ data: element });
+              if (element.type === 'form') {
+                launchFormModal({ data: element });
+              } else if (element.type === 'api') {
+                launchApiModal({ data: element });
               }
             }}
             nodeTypes={nodeTypes}

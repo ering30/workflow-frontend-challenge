@@ -6,19 +6,7 @@ import { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 
-import StartNode from '@/components/nodes/StartNode';
-import FormNode from '@/components/nodes/FormNode';
-import ConditionalNode from '@/components/nodes/ConditionalNode';
-import ApiNode from '@/components/nodes/ApiNode';
-import EndNode from '@/components/nodes/EndNode';
-
-const nodeTypes = {
-  start: StartNode,
-  form: FormNode,
-  conditional: ConditionalNode,
-  api: ApiNode,
-  end: EndNode,
-};
+import nodeTypes from '@/components/nodes/NodeTypes';
 
 const handleDragStart = (event: DragStartEvent, setActiveItem: (id: UniqueIdentifier) => void) => {
   const { active } = event;

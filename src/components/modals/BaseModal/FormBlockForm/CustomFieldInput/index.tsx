@@ -2,7 +2,7 @@ import { Button, Flex, Text } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
 import { Trash2 } from 'lucide-react';
 
-import type { FormField, ModalDataType } from '@/hooks/useModals';
+import type { FormField, FormModalDataType } from '@/hooks/useModals';
 import useForms from '@/components/modals/hooks/useForms';
 
 interface CustomFieldInputProps {
@@ -13,7 +13,7 @@ interface CustomFieldInputProps {
     customName: string;
     label: string;
   };
-  setModalData: React.Dispatch<React.SetStateAction<ModalDataType>>;
+  setModalData: React.Dispatch<React.SetStateAction<FormModalDataType>>;
 }
 
 const CustomFieldInput = (props: CustomFieldInputProps) => {

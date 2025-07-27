@@ -1,19 +1,25 @@
-import { Checkbox, Code, DataList, Flex, Text } from '@radix-ui/themes';
-import type { FormField } from '@/hooks/useModals';
+import { DataList, Flex } from '@radix-ui/themes';
+import type { ApiModalDataType, FormField } from '@/hooks/useModals';
 import * as Form from '@radix-ui/react-form';
+import useForms from '@/components/modals/hooks/useForms';
 
 interface RequestBodyItemProps {
   formField: FormField;
+  modalData: ApiModalDataType;
 }
 
 const RequestBodyItem = (props: RequestBodyItemProps) => {
   const {
     formField: { id, name, type, required },
-    formField,
+    modalData,
   } = props;
 
+  const {
+    callbacks: { handleSelectRequestBodyField },
+  } = useForms();
+
   return (
-    <Flex className="border border-gray-300 p-2 rounded-xl">
+    <Flex className="border border-gray-300 p-2 rounded-xl mt-2">
       <DataList.Root className="p-2 min-w-[50%] max-w-[80%]">
         <DataList.Item>
           <DataList.Label minWidth="88px" className="text-sm">
@@ -45,9 +51,11 @@ const RequestBodyItem = (props: RequestBodyItemProps) => {
         <Form.Control asChild>
           <input
             className="h-4 w-4 self-center"
-            // checked={required || false}
+            checked={Object.keys(modalData.requestBody).includes(name)}
             name="selected"
-            // onChange={(e) => handleNestedFieldChange(e, 'required', props.id)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleSelectRequestBodyField(e, name)
+            }
             type="checkbox"
           />
         </Form.Control>
