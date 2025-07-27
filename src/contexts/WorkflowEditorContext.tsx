@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from 'react';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 import { useNodesState, useEdgesState, Edge, Node } from '@xyflow/react';
 
 export const WorkflowEditorContext = createContext(undefined);
@@ -17,6 +17,14 @@ export const WorkflowEditorContextProvider = (props: WorkflowEditorContextProvid
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [workflowErrors, setWorkflowErrors] = useState<string[]>([]);
   const [activeItem, setActiveItem] = useState(null);
+
+  useEffect(() => {
+    const savedWorkflowConfig = JSON.parse(localStorage.getItem('Workflow Configuration'));
+    if (savedWorkflowConfig) {
+      setNodes(savedWorkflowConfig.nodes);
+      setEdges(savedWorkflowConfig.edges);
+    }
+  }, []);
 
   const value = {
     nodes,

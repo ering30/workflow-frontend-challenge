@@ -7,34 +7,41 @@ import { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 
 import nodeTypes from '@/components/nodes/NodeTypes';
+import { FormNodeData } from '@/components/nodes/components/FormNode';
 
 const handleDragStart = (event: DragStartEvent, setActiveItem: (id: UniqueIdentifier) => void) => {
   const { active } = event;
   setActiveItem(active.id);
 };
 
-const validateWorkflows = (paths: string[][]): boolean => {
-  const result = []
-  if (paths.length === 0) return true;
+const validateWorkflows = (paths: string[][]): [boolean, string[][]] => {
+  const result = [];
+  if (paths.length === 0) return [true, paths];
   for (const path of paths) {
     const hasStart = path.some((nodeId) => nodeId.startsWith('start'));
     const hasEnd = path.some((nodeId) => nodeId.startsWith('end'));
-    const hasOtherNodes = path.some((nodeId) => !nodeId.startsWith('start') && !nodeId.startsWith('end'));
+    const hasOtherNodes = path.some(
+      (nodeId) => !nodeId.startsWith('start') && !nodeId.startsWith('end')
+    );
 
     if (hasStart && hasEnd && hasOtherNodes) {
       result.push(true);
     } else {
       result.push(false);
     }
-  } 
+  }
   // if any path is valid, return false
-  if (result.some((isValid) => isValid)) return false;
+  if (result.some((isValid) => isValid)) return [false, paths];
 
-  return true; // is deletable
-}
+  return [true, paths]; // is deletable
+};
 
-const findAndValidateFlowPaths = (targetId: string | null | undefined, edges: Edge[], direction: "forward" | "backward"): boolean => {
-  if (!targetId || !edges) return true;
+const findAndValidateFlowPaths = (
+  targetId: string | null | undefined,
+  edges: Edge[],
+  direction: 'forward' | 'backward'
+): [boolean, string[][]] => {
+  if (!targetId || !edges) return [true, []];
 
   const allPaths: string[][] = [];
   const visited = new Set<string>();
@@ -46,9 +53,10 @@ const findAndValidateFlowPaths = (targetId: string | null | undefined, edges: Ed
     if (visited.has(nodeId)) continue;
     visited.add(nodeId);
 
-    const relevantEdges = direction === 'backward' 
-      ? edges.filter((edge) => edge.target === nodeId)  // incoming edges
-      : edges.filter((edge) => edge.source === nodeId); // outgoing edges
+    const relevantEdges =
+      direction === 'backward'
+        ? edges.filter((edge) => edge.target === nodeId) // incoming edges
+        : edges.filter((edge) => edge.source === nodeId); // outgoing edges
 
     // If no relevant edges, we found a terminal node - save this path
     if (relevantEdges.length === 0) {
@@ -60,10 +68,11 @@ const findAndValidateFlowPaths = (targetId: string | null | undefined, edges: Ed
     for (const edge of relevantEdges) {
       const connectedNodeId = direction === 'backward' ? edge.source : edge.target;
       if (!visited.has(connectedNodeId)) {
-        const newPath = direction === 'backward' 
-          ? [connectedNodeId, ...path]  // Build path from source to target
-          : [...path, connectedNodeId]; // Build path from target to source
-        
+        const newPath =
+          direction === 'backward'
+            ? [connectedNodeId, ...path] // Build path from source to target
+            : [...path, connectedNodeId]; // Build path from target to source
+
         stack.push({
           nodeId: connectedNodeId,
           path: newPath,
@@ -75,20 +84,20 @@ const findAndValidateFlowPaths = (targetId: string | null | undefined, edges: Ed
   return validateWorkflows(allPaths);
 };
 
-const checkDeletable = (nodeId: string, type: string, edges: Edge[]): boolean => {
+const checkDeletable = (nodeId: string, type: string, edges: Edge[]): [boolean, string[][]] => {
   const isStartNode = type === 'start';
   const isEndNode = type === 'end';
 
-  if (!isStartNode && !isEndNode){
-    return true; // Non-start/end nodes can always be deleted
+  if (!isStartNode && !isEndNode) {
+    return [true, []]; // Non-start/end nodes can always be deleted
   } else if (isStartNode) {
     // traverse forwards and check if there is a valid workflow
-    return findAndValidateFlowPaths(nodeId, edges, "forward");
+    return findAndValidateFlowPaths(nodeId, edges, 'forward');
   } else if (isEndNode) {
     // traverse backwards and check if there is a valid workflow
-    return findAndValidateFlowPaths(nodeId, edges, "backward");
-  } else return true; // If it is neither start nor end, it can be deleted
-}
+    return findAndValidateFlowPaths(nodeId, edges, 'backward');
+  } else return [true, []]; // If it is neither start nor end, it can be deleted
+};
 
 interface HandleDragEndParams {
   event: DragEndEvent;
@@ -158,7 +167,6 @@ const handleDragEnd = (params: HandleDragEndParams) => {
       y: offset.y,
     },
     data: {
-      fields: [],
       label: label(),
       type: active.id,
     },
@@ -169,7 +177,91 @@ const handleDragEnd = (params: HandleDragEndParams) => {
   setActiveItem(null);
 };
 
-const handleSave = (nodes: Node[], edges: Edge[], setShowSaveDialog: (value: boolean) => void) => {
+const handleValidateAndSaveWorkflow = (
+  nodes: Node[],
+  edges: Edge[],
+  setWorkflowErrors: (errors: string[]) => void,
+  setShowSaveDialog: (value: boolean) => void
+) => {
+  const startNode = nodes.find((node) => node.type === 'start');
+
+  if (!startNode || !nodes.some((node) => node.type === 'end')) {
+    setWorkflowErrors(['Save failed: incomplete workflow.']);
+    return;
+  }
+
+  const validatedWorkflows = findAndValidateFlowPaths(startNode?.id, edges, 'forward');
+
+  if (validatedWorkflows[0] === true) {
+    // workflow is not valid
+    setWorkflowErrors([
+      'Save failed: workflow is not valid. Please ensure there is a valid path from Start to End.',
+    ]);
+    return;
+  } else if (validatedWorkflows[0] === false) {
+    // workflow is valid - check all nodes have been setup
+    const paths = validatedWorkflows[1];
+
+    // in case of multiple workflows, ensure all nodes are setup on the valid workflows
+    const validPaths = paths.filter((path) => {
+      // include path if it has is valid
+      const hasStart = path.some((nodeId) => nodeId.startsWith('start'));
+      const hasEnd = path.some((nodeId) => nodeId.startsWith('end'));
+      const hasOtherNodes = path.some(
+        (nodeId) => !nodeId.startsWith('start') && !nodeId.startsWith('end')
+      );
+
+      return hasStart && hasEnd && hasOtherNodes;
+    });
+
+    const allValidFormNodesSetup = (nodes: Node[]) => {
+      const nodeIds = validPaths.flat().filter((nodeId) => nodeId.startsWith('form'));
+      if (nodeIds.length === 0) return true; // no form nodes to validate
+      for (const node of nodeIds) {
+        const formNode = nodes.find((n) => n.id === node);
+        const formNodeData = formNode?.data as FormNodeData;
+        if (!formNode || !formNodeData.fields || formNodeData.fields.length === 0) {
+          setWorkflowErrors(['Save failed: all Form Nodes must have at least one field defined.']);
+          return false;
+        }
+        if (formNodeData.fields.some((field) => !field.name || !field.type)) {
+          setWorkflowErrors([
+            'Save failed: all Form Node fields must have a name and type defined.',
+          ]);
+          return false;
+        }
+      }
+      return true;
+    };
+    const allValidApiNodesSetup = (nodes: Node[]) => {
+      const nodeIds = validPaths.flat().filter((nodeId) => nodeId.startsWith('api'));
+      if (nodeIds.length === 0) return true; // no api nodes to validate
+      for (const node of nodeIds) {
+        const apiNode = nodes.find((n) => n.id === node);
+        if (
+          !apiNode ||
+          apiNode.data.endpoint === '' ||
+          Object.keys(apiNode.data.requestBody).length === 0
+        ) {
+          setWorkflowErrors([
+            'Save failed: all API Nodes must have an endpoint, request body defined.',
+          ]);
+          return false;
+        }
+      }
+      return true;
+    };
+    if (!allValidFormNodesSetup(nodes) || !allValidApiNodesSetup(nodes)) {
+      return;
+    }
+
+    setWorkflowErrors([]);
+    handleSave(nodes, edges);
+    setShowSaveDialog(true);
+  }
+};
+
+const handleSave = (nodes: Node[], edges: Edge[]) => {
   const workflowConfig = {
     nodes: nodes.map((node) => ({
       id: node.id,
@@ -190,9 +282,7 @@ const handleSave = (nodes: Node[], edges: Edge[], setShowSaveDialog: (value: boo
     },
   };
 
-  console.log('Workflow Configuration:', JSON.stringify(workflowConfig, null, 2));
-
-  setShowSaveDialog(true);
+  localStorage.setItem('Workflow Configuration', JSON.stringify(workflowConfig, null, 2));
 };
 
 export default function useWorkflowEditor() {
@@ -224,25 +314,23 @@ export default function useWorkflowEditor() {
     if (edges.length === 0) return;
 
     // check if workflow is valid, if so then start and end nodes can't be deleted
-    const updatedNodes = nodes.map(node => ({
+    const updatedNodes = nodes.map((node) => ({
       ...node,
-      deletable: checkDeletable(node.id, node.type, edges)
+      deletable: checkDeletable(node.id, node.type, edges)[0],
     }));
 
     // Only update if there are actual changes to avoid infinite loops
-    const hasChanges = updatedNodes.some((node, index) => 
-      node.deletable !== nodes[index]?.deletable
+    const hasChanges = updatedNodes.some(
+      (node, index) => node.deletable !== nodes[index]?.deletable
     );
 
     if (hasChanges) {
       setNodes(updatedNodes);
     }
-  }, [nodes.length, edges.length, nodes, edges, setNodes]);
+  }, [nodes.length, edges.length, edges, setNodes]);
 
   return {
     callbacks: {
-      handleDragStart: (event: DragStartEvent) => handleDragStart(event, setActiveItem),
-      handleSave: () => handleSave(nodes, edges, setShowSaveDialog),
       handleDragEnd: (event: DragEndEvent) =>
         handleDragEnd({
           edges,
@@ -256,6 +344,9 @@ export default function useWorkflowEditor() {
           setWorkflowErrors,
           workflowErrors,
         }),
+      handleDragStart: (event: DragStartEvent) => handleDragStart(event, setActiveItem),
+      handleValidateAndSaveWorkflow: () =>
+        handleValidateAndSaveWorkflow(nodes, edges, setWorkflowErrors, setShowSaveDialog),
     },
     nodeTypes,
     onConnect,
