@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import { addEdge, Connection, Edge, Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -13,8 +13,86 @@ const handleDragStart = (event: DragStartEvent, setActiveItem: (id: UniqueIdenti
   setActiveItem(active.id);
 };
 
+const validateWorkflows = (paths: string[][]): boolean => {
+  const result = []
+  if (paths.length === 0) return true;
+  for (const path of paths) {
+    const hasStart = path.some((nodeId) => nodeId.startsWith('start'));
+    const hasEnd = path.some((nodeId) => nodeId.startsWith('end'));
+    const hasOtherNodes = path.some((nodeId) => !nodeId.startsWith('start') && !nodeId.startsWith('end'));
+
+    if (hasStart && hasEnd && hasOtherNodes) {
+      result.push(true);
+    } else {
+      result.push(false);
+    }
+  } 
+  // if any path is valid, return false
+  if (result.some((isValid) => isValid)) return false;
+
+  return true; // is deletable
+}
+
+const findAndValidateFlowPaths = (targetId: string | null | undefined, edges: Edge[], direction: "forward" | "backward"): boolean => {
+  if (!targetId || !edges) return [];
+
+  const allPaths: string[][] = [];
+  const visited = new Set<string>();
+  const stack = [{ nodeId: targetId, path: [targetId] }];
+
+  while (stack.length > 0) {
+    const { nodeId, path } = stack.pop()!;
+
+    if (visited.has(nodeId)) continue;
+    visited.add(nodeId);
+
+    const relevantEdges = direction === 'backward' 
+      ? edges.filter((edge) => edge.target === nodeId)  // incoming edges
+      : edges.filter((edge) => edge.source === nodeId); // outgoing edges
+
+    // If no relevant edges, we found a terminal node - save this path
+    if (relevantEdges.length === 0) {
+      allPaths.push(path);
+      continue;
+    }
+
+    // Add all source nodes to the stack with updated paths
+    for (const edge of relevantEdges) {
+      const connectedNodeId = direction === 'backward' ? edge.source : edge.target;
+      if (!visited.has(connectedNodeId)) {
+        const newPath = direction === 'backward' 
+          ? [connectedNodeId, ...path]  // Build path from source to target
+          : [...path, connectedNodeId]; // Build path from target to source
+        
+        stack.push({
+          nodeId: connectedNodeId,
+          path: newPath,
+        });
+      }
+    }
+  }
+
+  return validateWorkflows(allPaths);
+};
+
+const checkDeletable = (nodeId: string, type: string, edges: Edge[]): boolean => {
+  const isStartNode = type === 'start';
+  const isEndNode = type === 'end';
+
+  if (!isStartNode && !isEndNode){
+    return true; // Non-start/end nodes can always be deleted
+  } else if (isStartNode) {
+    // traverse forwards and check if there is a valid workflow
+    return findAndValidateFlowPaths(nodeId, edges, "forward");
+  } else if (isEndNode) {
+    // traverse backwards and check if there is a valid workflow
+    return findAndValidateFlowPaths(nodeId, edges, "backward");
+  } else return true; // If it is neither start nor end, it can be deleted
+}
+
 interface HandleDragEndParams {
   event: DragEndEvent;
+  edges: Edge[];
   hasNodes: boolean;
   hasStartNode: boolean;
   hasEndNode: boolean;
@@ -27,6 +105,7 @@ interface HandleDragEndParams {
 
 const handleDragEnd = (params: HandleDragEndParams) => {
   const {
+    edges,
     event,
     hasEndNode,
     hasNodes,
@@ -83,6 +162,7 @@ const handleDragEnd = (params: HandleDragEndParams) => {
       label: label(),
       type: active.id,
     },
+    deletable: true,
   };
 
   setNodes((nodes: Node[]) => [...nodes, newNode]);
@@ -140,12 +220,32 @@ export default function useWorkflowEditor() {
     [setEdges]
   );
 
+  useEffect(() => {
+    if (edges.length === 0) return;
+
+    // check if workflow is valid, if so then start and end nodes can't be deleted
+    const updatedNodes = nodes.map(node => ({
+      ...node,
+      deletable: checkDeletable(node.id, node.type, edges)
+    }));
+
+    // Only update if there are actual changes to avoid infinite loops
+    const hasChanges = updatedNodes.some((node, index) => 
+      node.deletable !== nodes[index]?.deletable
+    );
+
+    if (hasChanges) {
+      setNodes(updatedNodes);
+    }
+  }, [nodes.length, edges.length, nodes, edges, setNodes]);
+
   return {
     callbacks: {
       handleDragStart: (event: DragStartEvent) => handleDragStart(event, setActiveItem),
       handleSave: () => handleSave(nodes, edges, setShowSaveDialog),
       handleDragEnd: (event: DragEndEvent) =>
         handleDragEnd({
+          edges,
           event,
           hasNodes,
           hasStartNode,
