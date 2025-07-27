@@ -23,7 +23,7 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
   const errors = modalData.errors || [];
 
   const {
-    callbacks: { handleChange },
+    callbacks: { handleNestedFieldChange },
   } = useForms();
 
   return (
@@ -63,7 +63,9 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
             className="border border-gray-300 p-2 rounded-xl text-sm"
             data-testid="field-name-input"
             name="name"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, 'name', props.id)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleNestedFieldChange(e, 'name', props.id)
+            }
             required
             type="text"
             value={name || ''}
@@ -91,7 +93,7 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
               id="type"
               name="type"
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                handleChange(e, 'type', props.id)
+                handleNestedFieldChange(e, 'type', props.id)
               }
               required
             >
@@ -113,7 +115,7 @@ const CustomFieldInput = (props: CustomFieldInputProps) => {
             <input
               checked={required || false}
               name="fieldRequired"
-              onChange={(e) => handleChange(e, 'required', props.id)}
+              onChange={(e) => handleNestedFieldChange(e, 'required', props.id)}
               type="checkbox"
             />
           </Form.Control>

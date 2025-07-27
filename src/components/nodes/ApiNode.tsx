@@ -40,7 +40,7 @@ const ApiNode = ({ data }: { data: ApiNodeData }) => {
       <Flex align="center" gap="2" justify="center" mb="2">
         <Globe size={16} />
         <Text size="2" weight="bold">
-          {data.label}
+          {data.customName || data.label}
         </Text>
       </Flex>
 

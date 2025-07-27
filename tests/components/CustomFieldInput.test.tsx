@@ -7,14 +7,14 @@ import CustomFieldInput from '../../src/components/modals/BaseModal/FormBlockFor
 import type { FormField } from '../../src/hooks/useModals';
 
 // Create mock functions
-const mockHandleChange = vi.fn();
+const mockHandleNestedFieldChange = vi.fn();
 const mockSetModalData = vi.fn();
 
 // Mock the useForms hook
 vi.mock('../../src/components/modals/hooks/useForms', () => ({
   default: () => ({
     callbacks: {
-      handleChange: mockHandleChange,
+      handleNestedFieldChange: mockHandleNestedFieldChange,
     },
   }),
 }));
@@ -104,13 +104,13 @@ describe('CustomFieldInput', () => {
     expect(deleteButton).toBeInTheDocument();
   });
 
-  it('calls handleChange when field name input changes', () => {
+  it('calls handleNestedFieldChange when field name input changes', () => {
     renderCustomFieldInput();
     
     const nameInput = screen.getByTestId('field-name-input');
     fireEvent.change(nameInput, { target: { value: 'Updated Field Name' } });
-    
-    expect(mockHandleChange).toHaveBeenCalledWith(
+
+    expect(mockHandleNestedFieldChange).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({
           name: 'name',
@@ -122,13 +122,13 @@ describe('CustomFieldInput', () => {
     );
   });
 
-  it('calls handleChange when field type select changes', () => {
+  it('calls handleNestedFieldChange when field type select changes', () => {
     renderCustomFieldInput();
     
     const typeSelect = screen.getByTestId('field-type-select');
     fireEvent.change(typeSelect, { target: { value: 'email' } });
     
-    expect(mockHandleChange).toHaveBeenCalledWith(
+    expect(mockHandleNestedFieldChange).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({
           name: 'type',
@@ -140,13 +140,13 @@ describe('CustomFieldInput', () => {
     );
   });
 
-  it('calls handleChange when required checkbox changes', () => {
+  it('calls handleNestedFieldChange when required checkbox changes', () => {
     renderCustomFieldInput();
     
     const requiredCheckbox = screen.getByRole('checkbox');
     fireEvent.click(requiredCheckbox);
     
-    expect(mockHandleChange).toHaveBeenCalledWith(
+    expect(mockHandleNestedFieldChange).toHaveBeenCalledWith(
       expect.objectContaining({
         target: expect.objectContaining({
           type: 'checkbox',

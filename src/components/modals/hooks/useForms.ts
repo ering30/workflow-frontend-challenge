@@ -8,28 +8,14 @@ import { ModalContext } from '@/contexts/ModalContext';
 import type { ModalDataType } from '@/hooks/useModals';
 
 const formIsValid = (modalData: ModalDataType) => {
-  const { fields, errors } = modalData;
+  const { fields, errors, type } = modalData;
   const hasNames = fields?.findIndex((field) => field.name.trim() === '') === -1;
-  const hasFields = fields?.length > 0;
+  const hasFields = type === 'form' ? fields?.length > 0 : true;
   const noErrors = errors?.length === 0 || errors === undefined;
   return hasNames && noErrors && hasFields;
 };
 
-interface HandleInputChangeParams {
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>;
-  fieldId: string;
-  setModalData: React.Dispatch<React.SetStateAction<any>>;
-}
-
-const handleInputChange = ({ e, fieldId, setModalData }: HandleInputChangeParams) => {
-  const { value, name } = e.target;
-  setModalData((prevState) => ({
-    ...prevState,
-    fields: prevState.fields.map((f: any) => (f.id === fieldId ? { ...f, [name]: value } : f)),
-  }));
-};
-
-const handleChange = (
+const handleNestedFieldChange = (
   e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   fieldType: string,
   fieldId: string,
@@ -145,11 +131,11 @@ export default function useForms() {
 
   return {
     callbacks: {
-      handleChange: (
+      handleNestedFieldChange: (
         e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
         fieldType: string,
         fieldId: string
-      ) => handleChange(e, fieldType, fieldId, setModalData),
+      ) => handleNestedFieldChange(e, fieldType, fieldId, setModalData),
       handleSaveChanges: (modalData: any, closeModal: () => void) =>
         handleSaveChanges({ modalData, nodes, setNodes, setModalData, closeModal }),
     },

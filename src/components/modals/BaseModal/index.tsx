@@ -8,6 +8,7 @@ import useModals from '@/hooks/useModals';
 import { toTitleCase } from '@/lib/utilityFunctions';
 
 import useForms from '../hooks/useForms';
+import ApiBlockForm from './ApiBlockForm';
 import FormBlockForm from './FormBlockForm';
 
 const BaseModal = () => {
@@ -73,12 +74,7 @@ const BaseModal = () => {
                   onChange={(e) => handleBlockNameChange(e)}
                 />
               </Form.Control>
-              {/* <Form.Message /> */}
-              {/* <Form.ValidityState /> */}
             </Form.Field>
-
-            {/* <Form.Message /> */}
-            {/* <Form.ValidityState /> */}
 
             {errors?.length > 0 && errors.find((error) => error.field === 'none') && (
               <Text className="text-red-500 text-sm">
@@ -89,7 +85,7 @@ const BaseModal = () => {
             {type === 'form' && <FormBlockForm modalData={modalData} setModalData={setModalData} />}
 
             {/* API modal content */}
-            {type === 'api' && <Text>API Block Content</Text>}
+            {type === 'api' && <ApiBlockForm />}
           </Form.Root>
 
           <Flex justify="end" className="bg-white py-4 border-t gap-4">

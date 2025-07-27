@@ -11,7 +11,7 @@ export type ModalDataType = {
   fields: FormField[];
 };
 
-const launchFormModal = (
+const launchModal = (
   data: any,
   setShowModal: (state: boolean) => void,
   setModalData: (data: ModalDataType) => void
@@ -41,8 +41,8 @@ export default function useModals() {
   return {
     callbacks: {
       closeModal: () => setShowModal(false),
-      launchFormModal: ({ data }: { data: Record<string, any> }) => {
-        launchFormModal(data, setShowModal, setModalData);
+      launchModal: ({ data }: { data: Record<string, any> }) => {
+        launchModal(data, setShowModal, setModalData);
       },
     },
     showModal,
