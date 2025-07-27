@@ -34,7 +34,7 @@ const validateWorkflows = (paths: string[][]): boolean => {
 }
 
 const findAndValidateFlowPaths = (targetId: string | null | undefined, edges: Edge[], direction: "forward" | "backward"): boolean => {
-  if (!targetId || !edges) return [];
+  if (!targetId || !edges) return true;
 
   const allPaths: string[][] = [];
   const visited = new Set<string>();
