@@ -81,18 +81,31 @@ const handleUrlInputChange = (
 };
 
 const handleSelectRequestBodyField = (
-  e: ChangeEvent<HTMLInputElement>,
   fieldName: string,
+  modalData: ApiModalDataType,
   setModalData: React.Dispatch<React.SetStateAction<any>>
 ) => {
-  setModalData((prevState) => ({
-    ...prevState,
-    requestBody: {
-      ...prevState.requestBody,
-      // leave the value empty so that the eventual form value can be added
-      [fieldName]: '',
-    },
-  }));
+  const paramName = fieldName.replace(/\s+/g, '_').toLowerCase();
+  const containsField = Object.keys(modalData.requestBody).includes(paramName);
+  if (containsField) {
+    setModalData((prevState) => ({
+      ...prevState,
+      requestBody: Object.fromEntries(
+        Object.entries(prevState.requestBody).filter(([key]) => key !== paramName)
+      ),
+    }));
+  }
+  if (!containsField) {
+    
+    setModalData((prevState) => ({
+      ...prevState,
+      requestBody: {
+        ...prevState.requestBody,
+        // leave the value empty so that the eventual form value can be added
+        [paramName]: '',
+      },
+    }));
+  }
 };
 
 interface HandleSaveChangesParams {
@@ -274,8 +287,8 @@ export default function useForms() {
         handleSaveChanges({ modalData, nodes, setNodes, setModalData, closeModal }),
       handleUrlInputChange: (e: ChangeEvent<HTMLInputElement>, fieldType: string) =>
         handleUrlInputChange(e, fieldType, modalData, setModalData),
-      handleSelectRequestBodyField: (e: ChangeEvent<HTMLInputElement>, fieldName: string) =>
-        handleSelectRequestBodyField(e, fieldName, setModalData),
+      handleSelectRequestBodyField: (fieldName: string) =>
+        handleSelectRequestBodyField(fieldName, modalData, setModalData),
     },
   };
 }

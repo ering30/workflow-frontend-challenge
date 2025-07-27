@@ -18,6 +18,9 @@ const RequestBodyItem = (props: RequestBodyItemProps) => {
     callbacks: { handleSelectRequestBodyField },
   } = useForms();
 
+  const checked = Object.keys(modalData.requestBody).includes(name) 
+  || Object.keys(modalData.requestBody).includes(name.replace(/\s+/g, '_').toLowerCase());
+
   return (
     <Flex className="border border-gray-300 p-2 rounded-xl mt-2">
       <DataList.Root className="p-2 min-w-[50%] max-w-[80%]">
@@ -51,10 +54,10 @@ const RequestBodyItem = (props: RequestBodyItemProps) => {
         <Form.Control asChild>
           <input
             className="h-4 w-4 self-center"
-            checked={Object.keys(modalData.requestBody).includes(name)}
+            checked={checked}
             name="selected"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleSelectRequestBodyField(e, name)
+            onChange={() =>
+              handleSelectRequestBodyField(name)
             }
             type="checkbox"
           />

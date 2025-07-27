@@ -28,7 +28,7 @@ const FormBlockForm = (props: FormBlockFormProps) => {
             const newField = {
               id: `${modalData.id}__field-${modalData.fields.length + 1}`,
               name: '',
-              type: '' as FormField['type'],
+              type: 'text' as FormField['type'],
               required: false,
             };
 
