@@ -20,7 +20,7 @@ import useWorkflowEditor from './hooks/useWorkflowEditor';
 const WorkflowEditor = () => {
   const workflowEditorPayload = useWorkflowEditor();
   const {
-    callbacks: { handleDragStart, handleDragEnd, handleSave },
+    callbacks: { handleDragStart, handleDragEnd, handleValidateAndSaveWorkflow },
     onConnect,
     nodeTypes,
   } = workflowEditorPayload;
@@ -36,7 +36,7 @@ const WorkflowEditor = () => {
       <Card m="4" mb="0">
         <Flex flexGrow="1" justify="between" align="center">
           <Heading as="h2">Workflow Editor</Heading>
-          <Button onClick={handleSave}>
+          <Button onClick={handleValidateAndSaveWorkflow}>
             <Save size={16} />
             Save Workflow
           </Button>
