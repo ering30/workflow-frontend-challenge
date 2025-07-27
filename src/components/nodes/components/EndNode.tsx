@@ -31,7 +31,7 @@ const EndNode = ({ data }: { data: { label?: string } }) => {
       <Flex align="center" gap="2" justify="center">
         <Square size={16} fill="white" />
         <Text size="2" weight="bold">
-          End
+          {data.label}
         </Text>
       </Flex>
     </Box>

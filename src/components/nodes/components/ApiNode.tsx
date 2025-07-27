@@ -3,13 +3,13 @@ import { Handle, Position } from '@xyflow/react';
 import { Globe } from 'lucide-react';
 import { Box, Text, Flex } from '@radix-ui/themes';
 
-interface ApiNodeData {
+export type ApiNodeData = {
   label: string;
   customName?: string;
-  httpMethod?: 'GET' | 'POST';
+  httpMethod?: 'PUT' | 'POST';
   url?: string;
   requestBody?: Record<string, string>;
-}
+};
 
 const ApiNode = ({ data }: { data: ApiNodeData }) => {
   return (
@@ -40,7 +40,7 @@ const ApiNode = ({ data }: { data: ApiNodeData }) => {
       <Flex align="center" gap="2" justify="center" mb="2">
         <Globe size={16} />
         <Text size="2" weight="bold">
-          {data.label}
+          {data.customName || data.label}
         </Text>
       </Flex>
 

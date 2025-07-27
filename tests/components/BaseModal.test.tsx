@@ -105,7 +105,7 @@ describe('BaseModal', () => {
     renderBaseModal(apiModalContext);
     
     expect(screen.getByText('Configure Api Block')).toBeInTheDocument();
-    expect(screen.getByText('API Block Content')).toBeInTheDocument();
+    expect(screen.getByTestId('api-block-content')).toBeInTheDocument();
   });
 
   it('displays error message when errors exist', () => {

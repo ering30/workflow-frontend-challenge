@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext } from 'react';
 import { addEdge, Connection, Edge, Node } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -6,19 +6,7 @@ import { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 
-import StartNode from '@/components/nodes/StartNode';
-import FormNode from '@/components/nodes/FormNode';
-import ConditionalNode from '@/components/nodes/ConditionalNode';
-import ApiNode from '@/components/nodes/ApiNode';
-import EndNode from '@/components/nodes/EndNode';
-
-const nodeTypes = {
-  start: StartNode,
-  form: FormNode,
-  conditional: ConditionalNode,
-  api: ApiNode,
-  end: EndNode,
-};
+import nodeTypes from '@/components/nodes/NodeTypes';
 
 const handleDragStart = (event: DragStartEvent, setActiveItem: (id: UniqueIdentifier) => void) => {
   const { active } = event;
@@ -54,7 +42,12 @@ const handleDragEnd = (params: HandleDragEndParams) => {
   const nodeId = active.id as string;
   const isStartBlock = nodeId.startsWith('start');
   const isEndBlock = nodeId.startsWith('end');
-  const newNodeId = hasNodes ? `${nodeId}-${nodes.length + 1}` : nodeId;
+  const newNodeId = hasNodes ? `${nodeId}_${nodes.length + 1}` : nodeId;
+  const label = () => {
+    if (isStartBlock) return 'Start';
+    if (isEndBlock) return 'End';
+    return 'New Node';
+  };
 
   if (hasStartNode && isStartBlock) {
     if (workflowErrors.includes('Only one Start Block is allowed')) return;
@@ -87,7 +80,7 @@ const handleDragEnd = (params: HandleDragEndParams) => {
     },
     data: {
       fields: [],
-      label: 'New Node',
+      label: label(),
       type: active.id,
     },
   };

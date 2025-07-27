@@ -1,6 +1,7 @@
 import { Handle, Position } from '@xyflow/react';
 import { FileText } from 'lucide-react';
 import { Box, Text, Flex } from '@radix-ui/themes';
+import type { Node } from '@xyflow/react';
 
 interface FormField {
   id: string;
@@ -9,13 +10,13 @@ interface FormField {
   required: boolean;
 }
 
-interface FormNodeData {
+export type FormNodeData = {
   id: string;
   type: 'form';
-  label: string;
+  label?: string;
   customName?: string;
   fields?: FormField[];
-}
+};
 
 const FormNode = ({ data }: { data: FormNodeData }) => (
   <Box
