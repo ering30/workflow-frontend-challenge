@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { ModalContext } from '@/contexts/ModalContext';
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 import type { Node } from '@xyflow/react';
+import { FormNodeData } from '@/components/nodes/components/FormNode';
 
 export default function useApiForm() {
   const { modalData, setModalData } = useContext(ModalContext) || {};
@@ -54,7 +55,8 @@ export default function useApiForm() {
 
   const availableFormFields = nodes.reduce((allFields, node: Node) => {
     if (node.type === 'form' && previousFormNodes.includes(node.id)) {
-      return [...allFields, ...(node?.data?.fields || [])];
+      const nodeData = node.data as FormNodeData;
+      return [...allFields, ...(nodeData.fields || [])];
     }
     return allFields;
   }, []);
