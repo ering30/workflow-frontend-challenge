@@ -2,14 +2,7 @@ import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { Globe } from 'lucide-react';
 import { Box, Text, Flex } from '@radix-ui/themes';
-
-export type ApiNodeData = {
-  label: string;
-  customName?: string;
-  httpMethod?: 'PUT' | 'POST';
-  url?: string;
-  requestBody?: Record<string, string>;
-};
+import { ApiNodeData } from '@/lib/types';
 
 const ApiNode = ({ data }: { data: ApiNodeData }) => {
   return (

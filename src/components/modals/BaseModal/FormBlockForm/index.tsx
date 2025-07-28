@@ -1,6 +1,6 @@
 import { Flex, Button, Text } from '@radix-ui/themes';
 
-import { FormField, FormModalDataType } from '@/hooks/useModals';
+import { FormField, FormModalDataType } from '@/lib/types';
 
 import CustomFieldInput from './CustomFieldInput';
 

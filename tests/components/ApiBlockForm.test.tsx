@@ -6,7 +6,7 @@ import * as Form from '@radix-ui/react-form';
 import ApiBlockForm from '../../src/components/modals/BaseModal/ApiBlockForm';
 import { ModalContext } from '../../src/contexts/ModalContext';
 import { WorkflowEditorContext } from '../../src/contexts/WorkflowEditorContext';
-import type { ApiModalDataType, FormField } from '../../src/hooks/useModals';
+import type { ApiModalDataType, FormField } from '../../src/lib/types';
 
 // Mock the validation functions
 vi.mock('validator', () => ({

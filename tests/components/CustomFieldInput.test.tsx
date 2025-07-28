@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Theme } from '@radix-ui/themes';
 import * as Form from '@radix-ui/react-form';
 import CustomFieldInput from '../../src/components/modals/BaseModal/FormBlockForm/CustomFieldInput';
-import type { FormField } from '../../src/hooks/useModals';
+import type { FormField } from '../../src/lib/types';
 
 // Create mock functions
 const mockHandleNestedFieldChange = vi.fn();

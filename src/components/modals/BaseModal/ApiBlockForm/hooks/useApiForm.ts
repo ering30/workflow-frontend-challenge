@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { ModalContext } from '@/contexts/ModalContext';
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 import type { Node } from '@xyflow/react';
-import { FormNodeData } from '@/components/nodes/components/FormNode';
+import type { FormNodeData } from '@/lib/types';
 
 export default function useApiForm() {
   const { modalData, setModalData } = useContext(ModalContext) || {};
