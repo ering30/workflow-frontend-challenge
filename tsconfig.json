@@ -14,7 +14,6 @@
     "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": false,
-    "strictNullChecks": false,
-    "types": ["node", "jest", "@testing-library/jest-dom"],
+    "strictNullChecks": false
   }
 }
