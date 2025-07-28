@@ -72,10 +72,10 @@ const ApiBlockForm = () => {
         <Form.Message>
           <Text className="text-red-500 text-sm" data-testid="field-url-error">
             {
-              modalData.errors?.find((error) => {
+              modalData?.errors?.find((error) => {
                 const fieldName = error.field;
                 return fieldName === 'url';
-              })?.message
+              })?.message || null
             }
           </Text>
         </Form.Message>
@@ -83,6 +83,7 @@ const ApiBlockForm = () => {
           <input
             className="border border-gray-300 p-2 rounded-xl text-sm"
             data-testid="field-url-input"
+            id="url"
             name="url"
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleUrlInputChange(e, 'url')}
             required
@@ -95,13 +96,13 @@ const ApiBlockForm = () => {
       <Flex direction="column" className="mb-4">
         <Text className="text-gray-400 text-sm mb-2">Request Body</Text>
         <Text className="text-red-500 text-sm" data-testid="field-request_body-error">
-          {modalData.errors
+          {modalData?.errors
             ?.filter((error) => {
               const fieldName = error.field;
               return fieldName === 'requestBody';
             })
             ?.map((error) => error.message)
-            .join(', ')}
+            .join(', ') || ''}
         </Text>
 
         {!hasAvailableFormFields && (
