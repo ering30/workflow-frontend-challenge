@@ -26,7 +26,7 @@ const FormBlockForm = (props: FormBlockFormProps) => {
             e.preventDefault();
             e.stopPropagation();
             const newField = {
-              id: `${modalData.id}__field-${modalData.fields.length + 1}`,
+              id: `${modalData.id}__field-${(modalData.fields || []).length + 1}`,
               name: '',
               type: 'text' as FormField['type'],
               required: false,
@@ -43,7 +43,7 @@ const FormBlockForm = (props: FormBlockFormProps) => {
       </Flex>
 
       <Flex direction="column" className="mb-4 flex-col gap-4">
-        {modalData.fields.map((field, index) => (
+        {(modalData.fields || []).map((field, index) => (
           <CustomFieldInput
             id={field.id}
             key={`field-${index + 1}`}
