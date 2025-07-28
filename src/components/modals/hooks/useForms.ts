@@ -6,7 +6,7 @@ import { sanitisedStringInput, sanitisedUrl } from '@/lib/validation';
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 import { ModalContext } from '@/contexts/ModalContext';
 
-import type { FormModalDataType, ApiModalDataType } from '@/hooks/useModals';
+import type { FormModalDataType, ApiModalDataType } from '@/lib/types';
 
 const formIsValid = (modalData: FormModalDataType | ApiModalDataType) => {
   const { errors, type } = modalData;
