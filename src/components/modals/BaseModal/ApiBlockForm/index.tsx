@@ -71,12 +71,10 @@ const ApiBlockForm = () => {
         </Form.Label>
         <Form.Message>
           <Text className="text-red-500 text-sm" data-testid="field-url-error">
-            {
-              modalData?.errors?.find((error) => {
-                const fieldName = error.field;
-                return fieldName === 'url';
-              })?.message || null
-            }
+            {modalData?.errors?.find((error) => {
+              const fieldName = error.field;
+              return fieldName === 'url';
+            })?.message || null}
           </Text>
         </Form.Message>
         <Form.Control asChild>

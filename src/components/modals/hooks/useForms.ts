@@ -96,7 +96,6 @@ const handleSelectRequestBodyField = (
     }));
   }
   if (!containsField) {
-    
     setModalData((prevState) => ({
       ...prevState,
       requestBody: {
@@ -208,7 +207,7 @@ export default function useForms() {
 
   useEffect(() => {
     if (!modalData) return; // Guard clause for missing modalData
-    
+
     if (modalData.type === 'form') {
       if (modalData.errors?.length > 0) {
         // check if the fields are now valid after changes
