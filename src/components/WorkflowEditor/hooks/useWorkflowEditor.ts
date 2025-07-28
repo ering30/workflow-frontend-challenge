@@ -7,7 +7,7 @@ import { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 import { WorkflowEditorContext } from '@/contexts/WorkflowEditorContext';
 
 import nodeTypes from '@/components/nodes/NodeTypes';
-import { FormNodeData } from '@/components/nodes/components/FormNode';
+import { FormNodeData } from '@/lib/types';
 
 const handleDragStart = (event: DragStartEvent, setActiveItem: (id: UniqueIdentifier) => void) => {
   const { active } = event;

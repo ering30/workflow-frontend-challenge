@@ -1,19 +1,7 @@
 import { useContext } from 'react';
 import { ModalContext } from '@/contexts/ModalContext';
 import { toTitleCase } from '@/lib/utilityFunctions';
-import { ApiNodeData } from '@/components/nodes/components/ApiNode';
-
-export type ModalDataType = {
-  id: string | null;
-  type: string | null;
-  label: string;
-  customName: string;
-  errors: { field: string; message: string }[];
-};
-
-export type FormModalDataType = ModalDataType & {
-  fields: FormField[];
-};
+import type { ApiModalDataType, FormModalDataType } from '../lib/types';
 
 const launchFormModal = (
   data: any,
@@ -32,8 +20,6 @@ const launchFormModal = (
   setShowModal(true);
 };
 
-export type ApiModalDataType = ModalDataType & ApiNodeData;
-
 const launchApiModal = (
   data: any,
   setShowModal: (state: boolean) => void,
@@ -51,13 +37,6 @@ const launchApiModal = (
   });
 
   setShowModal(true);
-};
-
-export type FormField = {
-  id: string;
-  name: string;
-  type: 'text' | 'email' | 'number' | '';
-  required: boolean;
 };
 
 export default function useModals() {

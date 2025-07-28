@@ -1,5 +1,5 @@
 import { DataList, Flex } from '@radix-ui/themes';
-import type { ApiModalDataType, FormField } from '@/hooks/useModals';
+import type { ApiModalDataType, FormField } from '@/lib/types';
 import * as Form from '@radix-ui/react-form';
 import useForms from '@/components/modals/hooks/useForms';
 

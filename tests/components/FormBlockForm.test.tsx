@@ -6,7 +6,7 @@ import * as Form from '@radix-ui/react-form';
 import FormBlockForm from '../../src/components/modals/BaseModal/FormBlockForm';
 import { ModalContext } from '../../src/contexts/ModalContext';
 import { WorkflowEditorContext } from '../../src/contexts/WorkflowEditorContext';
-import type { FormModalDataType, FormField } from '../../src/hooks/useModals';
+import type { FormModalDataType } from '../../src/lib/types';
 
 // Mock useForms hook
 const mockHandleNestedFieldChange = vi.fn();
