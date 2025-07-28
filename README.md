@@ -68,6 +68,7 @@ src/
 │   ├── WorkflowEditor/          # Main workflow canvas
 │   ├── BlockPanel/              # Left panel with draggable blocks
 │   ├── DraggableBlockOverlay/   # Presentational components to enable dragging onto canvas
+│   ├── modals/                  # Modal and related form components
 │   └── nodes/                   # Node components
 │       ├── StartNode.tsx
 │       ├── FormNode.tsx
@@ -76,9 +77,52 @@ src/
 │       └── EndNode.tsx
 ├── contexts/                    # Shared component data
 ├── hooks/                       # Component logic 
+├── lib/                         # Types & utilities
 ├── pages/
 │   ├── Index.tsx                # App entry point
 │   └── NotFound.tsx
 └── main.tsx                     # App root file
 ├── tests/                       # Test suite
 ```
+
+## Design Decisions
+
+- Reduce component size to reduce file complexity, by splitting components into smaller or reusable pieces e.g. modal. 
+- Co-locating and nesting related components together
+- Separate out logic from components into hooks
+- Co-locating local hooks with components to maintain separation of concerns and simplify maintainance
+- Use global hooks where needed, but prefer local hooks
+- Use context providers to share common global variables
+- ``src/lib`` folder to contain utility functions and types, can easily be ignored from dist in CI if needed
+- Locate tests in root folder to maintain separation
+- Use radix-ui library to avoid introducing additional dependencies
+- Node and Block components are easily extended and maintained by modifying ``useDraggableBlocks.ts``, ``NodeTypes.ts``, and adding to the ``src/components/nodes/components`` folder. Similarly, additional type definitions can be exported from ``src/lib/types``. 
+
+Data flow: 
+
+```mermaid
+graph TD
+    WorkflowEditorContext --> ModalContext
+    ModalContext --> id1[React-Flow Editor];
+    ModalContext --> Modal;
+    Modal --> Forms;
+    Forms --> id1[React-Flow Editor];
+```
+
+## Trade-offs
+
+- Time management: moving into implementation prior to carefully examining relevant documentation; this led to incorrect assumptions and inefficiencies 
+- Custom form validation to keep project complexity low and avoid additional dependencies; this increased complexity and time
+- Custom input handling, errors and validation on each field due to data structures; related to both points above. This could have been achieved in a simpler and more streamlined way with reusable components and hooks, and/ or form validation library
+
+## Testing strategy
+
+- Primarily integration testing of components, with some smaller unit tests of utility functions
+- Provides coverage of user interactions, rendering and state and includes functionality in hooks/ context without requiring explicit additional tests for those. 
+
+## Reflection 
+I started the challenge without fully reading through documentation, which led to some incorrect assumptions and avoidable mistakes.
+
+As I progressed, I realised I’d missed key information that would have helped guide a better approach from the start.
+
+In hindsight, I would take more time upfront to understand the context and requirements before jumping into the build.
