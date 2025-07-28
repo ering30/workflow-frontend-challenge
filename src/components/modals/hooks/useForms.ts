@@ -70,11 +70,11 @@ const handleUrlInputChange = (
   if (fieldType === 'url' && !isURL(value)) {
     const errorMessage = 'Please enter a valid URL.';
     if (
-      !modalData.errors?.find((error) => error.field === `url` && error.message === errorMessage)
+      !modalData?.errors?.find((error) => error.field === `url` && error.message === errorMessage)
     ) {
       setModalData((prevData) => ({
         ...prevData,
-        errors: [...prevData.errors, { field: `url`, message: errorMessage }],
+        errors: [...(prevData?.errors || []), { field: `url`, message: errorMessage }],
       }));
     }
   }
@@ -86,21 +86,20 @@ const handleSelectRequestBodyField = (
   setModalData: React.Dispatch<React.SetStateAction<any>>
 ) => {
   const paramName = fieldName.replace(/\s+/g, '_').toLowerCase();
-  const containsField = Object.keys(modalData.requestBody).includes(paramName);
+  const containsField = Object.keys(modalData?.requestBody || {}).includes(paramName);
   if (containsField) {
     setModalData((prevState) => ({
       ...prevState,
       requestBody: Object.fromEntries(
-        Object.entries(prevState.requestBody).filter(([key]) => key !== paramName)
+        Object.entries(prevState?.requestBody || {}).filter(([key]) => key !== paramName)
       ),
     }));
   }
   if (!containsField) {
-    
     setModalData((prevState) => ({
       ...prevState,
       requestBody: {
-        ...prevState.requestBody,
+        ...(prevState?.requestBody || {}),
         // leave the value empty so that the eventual form value can be added
         [paramName]: '',
       },
@@ -204,9 +203,11 @@ export default function useForms() {
   const { modalData, setModalData } = useContext(ModalContext) || {};
 
   const workflowContext = useContext(WorkflowEditorContext);
-  const { nodes, setNodes } = workflowContext;
+  const { nodes, setNodes } = workflowContext || {};
 
   useEffect(() => {
+    if (!modalData) return; // Guard clause for missing modalData
+
     if (modalData.type === 'form') {
       if (modalData.errors?.length > 0) {
         // check if the fields are now valid after changes
@@ -235,7 +236,7 @@ export default function useForms() {
         });
 
         // Only update if errors actually changed
-        if (filteredErrors.length !== modalData.errors.length) {
+        if (filteredErrors.length !== (modalData?.errors?.length || 0)) {
           setModalData?.((prevState) => ({
             ...prevState,
             errors: filteredErrors,
@@ -266,7 +267,7 @@ export default function useForms() {
         });
 
         // Only update if errors actually changed
-        if (filteredErrors.length !== modalData.errors.length) {
+        if (filteredErrors.length !== (modalData?.errors?.length || 0)) {
           setModalData?.((prevState) => ({
             ...prevState,
             errors: filteredErrors,
@@ -282,13 +283,26 @@ export default function useForms() {
         e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
         fieldType: string,
         fieldId: string
-      ) => handleNestedFieldChange(e, fieldType, fieldId, setModalData),
-      handleSaveChanges: (modalData: any, closeModal: () => void) =>
-        handleSaveChanges({ modalData, nodes, setNodes, setModalData, closeModal }),
-      handleUrlInputChange: (e: ChangeEvent<HTMLInputElement>, fieldType: string) =>
-        handleUrlInputChange(e, fieldType, modalData, setModalData),
-      handleSelectRequestBodyField: (fieldName: string) =>
-        handleSelectRequestBodyField(fieldName, modalData, setModalData),
+      ) => {
+        if (setModalData) {
+          handleNestedFieldChange(e, fieldType, fieldId, setModalData);
+        }
+      },
+      handleSaveChanges: (modalData: any, closeModal: () => void) => {
+        if (modalData && nodes && setNodes && setModalData) {
+          handleSaveChanges({ modalData, nodes, setNodes, setModalData, closeModal });
+        }
+      },
+      handleUrlInputChange: (e: ChangeEvent<HTMLInputElement>, fieldType: string) => {
+        if (modalData && setModalData) {
+          handleUrlInputChange(e, fieldType, modalData, setModalData);
+        }
+      },
+      handleSelectRequestBodyField: (fieldName: string) => {
+        if (modalData && setModalData) {
+          handleSelectRequestBodyField(fieldName, modalData, setModalData);
+        }
+      },
     },
   };
 }

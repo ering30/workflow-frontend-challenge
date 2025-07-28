@@ -6,7 +6,7 @@ import { FormNodeData } from '@/components/nodes/components/FormNode';
 
 export default function useApiForm() {
   const { modalData, setModalData } = useContext(ModalContext) || {};
-  const { edges, nodes } = useContext(WorkflowEditorContext) || {};
+  const { edges = [], nodes = [] } = useContext(WorkflowEditorContext) || {};
 
   const currentApiEntryEdges = edges.filter((edge) => edge.target === modalData?.id);
 
